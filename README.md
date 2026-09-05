@@ -17,3 +17,9 @@ https://github.com/user-attachments/assets/89a5e81f-2f21-4c6a-8aef-272098677c93
 ```
 omarchy plugin add https://github.com/axelfontaine/omarchy-window-close-buttons.git --enable
 ```
+
+## Uninstall
+
+```
+omarchy plugin remove axel.window-close-buttons
+```
