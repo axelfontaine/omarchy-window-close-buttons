@@ -23,3 +23,7 @@ omarchy plugin add https://github.com/axelfontaine/omarchy-window-close-buttons.
 ```
 omarchy plugin remove axel.window-close-buttons
 ```
+
+## License
+
+MIT
