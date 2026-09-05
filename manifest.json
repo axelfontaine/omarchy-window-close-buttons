@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "axel.window-close-buttons",
+  "name": "Window close buttons",
+  "version": "1.0.0",
+  "author": "axel",
+  "license": "MIT",
+  "description": "Hover a window's top-right corner to reveal a small close button; move away and it disappears.",
+  "kinds": ["service"],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}
