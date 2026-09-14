@@ -21,7 +21,7 @@ omarchy plugin add https://github.com/axelfontaine/omarchy-window-close-buttons.
 ## Uninstall
 
 ```
-omarchy plugin remove axelfontaine.window-close-buttons
+omarchy plugin remove axel.window-close-buttons
 ```
 
 ## Dependencies
