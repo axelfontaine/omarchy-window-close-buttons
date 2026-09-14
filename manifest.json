@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "axel.window-close-buttons",
+  "id": "axelfontaine.window-close-buttons",
   "name": "Window close buttons",
   "version": "1.0.0",
-  "author": "axel",
+  "author": "axelfontaine",
   "license": "MIT",
   "description": "Hover a window's top-right corner to reveal a small close button; move away and it disappears.",
   "kinds": ["service"],
