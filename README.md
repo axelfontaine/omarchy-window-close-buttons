@@ -1,4 +1,4 @@
-# Window close buttons
+# Window Close Buttons
 
 As simple as it sounds: an [Omarchy](https://omarchy.org) shell plugin that adds close buttons to windows, enhancing usability and beginner-friendliness without sacrificing esthetics.
 
