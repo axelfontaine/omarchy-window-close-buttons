@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "axelfontaine.window-close-buttons",
-  "name": "Window close buttons",
-  "version": "1.0.0",
+  "name": "Window Close Buttons",
+  "version": "1.0.1",
   "author": "axelfontaine",
   "license": "MIT",
-  "description": "Hover a window's top-right corner to reveal a small close button; move away and it disappears.",
+  "description": "Adds close buttons to windows, enhancing usability and beginner-friendliness without sacrificing esthetics. Hover over a window's top-right corner and a small close button appears. Click it to close the window.",
   "kinds": ["service"],
   "keepLoaded": true,
   "entryPoints": {
