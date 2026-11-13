@@ -204,7 +204,7 @@ Item {
       readonly property bool isActiveWindow: modelData !== null && Hyprland.activeToplevel !== null
         && Hyprland.activeToplevel.address === modelData.address
       // A maximized/fullscreen window covers the rest of its workspace, so
-      // the windows behind it must not keep their (overlay-layer) corner
+      // the windows behind it must not keep their (layer-shell) corner
       // zones: hovering one would focus the hidden window, which with
       // misc:on_focus_under_fullscreen then takes over the maximized state.
       // workspace.hasFullscreen is live, while info.fullscreen only updates
@@ -234,7 +234,11 @@ Item {
       color: "transparent"
 
       WlrLayershell.namespace: "omarchy-window-close-button"
-      WlrLayershell.layer: WlrLayer.Overlay
+      // Top, not Overlay: still above every window (including a maximized
+      // one), but below the shell's own Overlay surfaces such as notification
+      // toasts, so a toast covering a window's corner keeps the hover and
+      // clicks instead of revealing (and focusing) the close button under it.
+      WlrLayershell.layer: WlrLayer.Top
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore
 
