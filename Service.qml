@@ -204,12 +204,22 @@ Item {
       // info's "at"/"size" arrive as QVariantList, which marshals into QML as
       // an array-like object (indexable, has .length) rather than a real JS
       // Array, so Array.isArray() on it is always false — check shape instead.
-      readonly property bool showable: onActiveWorkspace
+      readonly property bool isActiveWindow: modelData !== null && Hyprland.activeToplevel !== null
+        && Hyprland.activeToplevel.address === modelData.address
+      // A maximized/fullscreen window covers the rest of its workspace, so
+      // the windows behind it must not keep their (overlay-layer) corner
+      // zones: hovering one would focus the hidden window, which with
+      // misc:on_focus_under_fullscreen then takes over the maximized state.
+      // workspace.hasFullscreen is live, while info.fullscreen only updates
+      // on the next IPC refresh, so the active window is also treated as the
+      // covering one.
+      readonly property bool coveredByFullscreen: modelData !== null && modelData.workspace !== null
+        && modelData.workspace.hasFullscreen === true
+        && !isActiveWindow && !(info !== null && info.fullscreen > 0)
+      readonly property bool showable: onActiveWorkspace && !coveredByFullscreen
         && info !== null && info.mapped !== false && info.hidden !== true
         && info.at && info.at.length === 2 && info.size && info.size.length === 2
         && targetScreen !== null
-      readonly property bool isActiveWindow: modelData !== null && Hyprland.activeToplevel !== null
-        && Hyprland.activeToplevel.address === modelData.address
       // Pressing on the circle and dragging off before releasing leaves
       // HoverHandler.hovered stuck at its pre-drag value — Qt only
       // re-evaluates hover on the next real pointer move, not on release —

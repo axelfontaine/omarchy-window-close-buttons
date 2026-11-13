@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "axel.window-close-buttons",
   "name": "Window Close Buttons",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "axelfontaine",
   "license": "MIT",
   "description": "Adds close buttons to windows, enhancing usability and beginner-friendliness without sacrificing esthetics. Hover over a window's top-right corner and a small close button appears. Click it to close the window.",
