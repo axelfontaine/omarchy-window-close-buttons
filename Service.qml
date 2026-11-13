@@ -201,9 +201,6 @@ Item {
       // their own workspace is no longer the active one.
       readonly property bool onActiveWorkspace: modelData !== null && modelData.workspace !== null
         && (modelData.workspace.active === true || (info !== null && info.pinned === true))
-      // info's "at"/"size" arrive as QVariantList, which marshals into QML as
-      // an array-like object (indexable, has .length) rather than a real JS
-      // Array, so Array.isArray() on it is always false — check shape instead.
       readonly property bool isActiveWindow: modelData !== null && Hyprland.activeToplevel !== null
         && Hyprland.activeToplevel.address === modelData.address
       // A maximized/fullscreen window covers the rest of its workspace, so
@@ -216,6 +213,9 @@ Item {
       readonly property bool coveredByFullscreen: modelData !== null && modelData.workspace !== null
         && modelData.workspace.hasFullscreen === true
         && !isActiveWindow && !(info !== null && info.fullscreen > 0)
+      // info's "at"/"size" arrive as QVariantList, which marshals into QML as
+      // an array-like object (indexable, has .length) rather than a real JS
+      // Array, so Array.isArray() on it is always false — check shape instead.
       readonly property bool showable: onActiveWorkspace && !coveredByFullscreen
         && info !== null && info.mapped !== false && info.hidden !== true
         && info.at && info.at.length === 2 && info.size && info.size.length === 2
