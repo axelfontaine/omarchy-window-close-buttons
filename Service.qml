@@ -33,6 +33,9 @@ Item {
   // The invisible hit/hover box has to be big enough to hold the fully
   // offset circle without clipping it against the panel's own edge.
   readonly property int hitSize: 2 * (service.circleRadius + service.circleInset) + 8
+  // Minimum distance between the circle and the screen edge when a window
+  // has no gap to the screen (fullscreen, or flush with the edge).
+  readonly property int screenEdgeMargin: 4
 
   Process {
     id: gapsInProc
@@ -116,6 +119,10 @@ Item {
   // reassigned wholesale rather than mutated.
   readonly property color circleColor: Color.flatColor(Color.pick("hyprland.active-border", Color.accent), Color.accent)
   readonly property color glyphColor: Color.flatColor(Color.pick("hyprland.active-border-foreground", Color.foreground), Color.foreground)
+
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v))
+  }
 
   function mixColor(a, b, t) {
     return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1)
@@ -246,16 +253,47 @@ Item {
       // one), but below the shell's own Overlay surfaces such as notification
       // toasts, so a toast covering a window's corner keeps the hover and
       // clicks instead of revealing (and focusing) the close button under it.
-      WlrLayershell.layer: WlrLayer.Top
+      //
+      // Exception: Hyprland draws a true-fullscreen window (fullscreen mode
+      // bit 2, as opposed to maximized = 1) above the Top layer, which would
+      // hide its close button entirely — so that one window's corner moves
+      // up to Overlay for as long as it stays fullscreen.
+      readonly property bool trueFullscreen: info !== null && (info.fullscreen & 2) !== 0
+      WlrLayershell.layer: trueFullscreen ? WlrLayer.Overlay : WlrLayer.Top
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore
 
       implicitWidth: service.hitSize
       implicitHeight: service.hitSize
 
+      // Where the circle's center wants to be, in screen-local coordinates:
+      // the window's top-right corner, pulled into the window by
+      // circleInset (so part of it normally sits in the gap). With no gap
+      // around the window — fullscreen/maximized, or a window flush with the
+      // screen edge — that would put part of the circle off screen, so the
+      // center is clamped to keep the whole circle on screen, at least
+      // screenEdgeMargin away from the edge. The hit box is clamped
+      // separately so the layer surface itself never extends past the
+      // screen either; the circle is then placed inside it at whatever
+      // offset the two clamps leave (centered + inset, exactly as before,
+      // when nothing clamps).
+      readonly property int screenWidth: targetScreen ? targetScreen.width : 0
+      readonly property int screenHeight: targetScreen ? targetScreen.height : 0
+      readonly property int circleReach: service.circleRadius + service.screenEdgeMargin
+      readonly property int circleCenterX: showable
+        ? service.clamp(Math.round(info.at[0] + info.size[0] - targetScreen.x - service.circleInset),
+            circleReach, screenWidth - circleReach)
+        : 0
+      readonly property int circleCenterY: showable
+        ? service.clamp(Math.round(info.at[1] - targetScreen.y + service.circleInset),
+            circleReach, screenHeight - circleReach)
+        : 0
+      readonly property int panelLeft: service.clamp(circleCenterX - service.hitSize / 2, 0, screenWidth - service.hitSize)
+      readonly property int panelTop: service.clamp(circleCenterY - service.hitSize / 2, 0, screenHeight - service.hitSize)
+
       anchors { left: true; top: true }
-      margins.left: showable ? Math.round(info.at[0] + info.size[0] - targetScreen.x - service.hitSize / 2) : 0
-      margins.top: showable ? Math.round(info.at[1] - targetScreen.y - service.hitSize / 2) : 0
+      margins.left: showable ? panelLeft : 0
+      margins.top: showable ? panelTop : 0
 
       HoverHandler {
         id: hover
@@ -264,10 +302,10 @@ Item {
 
       Rectangle {
         id: circle
-        // Pull left (into the window horizontally) and down (into the
-        // window vertically) so the circle sits mostly inside the window.
-        x: (parent.width - width) / 2 - service.circleInset
-        y: (parent.height - height) / 2 + service.circleInset
+        // Centered on the (inset, on-screen-clamped) point computed above,
+        // relative to wherever the hit box itself ended up.
+        x: cornerWindow.circleCenterX - cornerWindow.panelLeft - service.circleRadius
+        y: cornerWindow.circleCenterY - cornerWindow.panelTop - service.circleRadius
         width: service.circleSize
         height: service.circleSize
         radius: width / 2
