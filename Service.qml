@@ -133,12 +133,20 @@ Item {
   // Omarchy's Hyprland build routes `hyprctl dispatch <args>` through a Lua
   // eval (`hl.dispatch(<args>)`), so the classic "closewindow address:0x.."
   // string is not valid here — dispatchers are Lua calls under hl.dsp.*.
-  // Verified against this install: hl.dsp.window.close({ address = ".." })
-  // closes the targeted window regardless of focus.
+  //
+  // The target MUST go in the "window" key as a classic "address:0x.."
+  // selector. Hyprland only reads "window" (see pushWindowUpval in
+  // LuaBindingsInternal.cpp); any other key such as "address" is silently
+  // ignored, and with no selector Actions::closeWindow falls back to the
+  // *focused* window. That would close the wrong window whenever the
+  // clicked one isn't focused (e.g. the hover-focus dispatch hasn't landed
+  // yet). A selector that matches nothing (window already gone) resolves to
+  // null and is a no-op, so a stale address never falls back to focus.
+  // Never call this without a valid address: bail out instead.
   function closeWindow(addr) {
     var normalized = service.normalizedAddress(addr)
     if (!normalized) return
-    Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.close({ address = \"" + normalized + "\" })"])
+    Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.close({ window = \"address:" + normalized + "\" })"])
   }
 
   // hl.dsp.focus's "address" key isn't recognized (verified against this
